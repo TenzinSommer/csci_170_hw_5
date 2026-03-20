@@ -1,0 +1,8 @@
+(library
+ (name json_parsing)
+ (modules json_parsing))
+
+(test
+ (name json_parsing_test)
+ (modules json_parsing_test)
+ (libraries json_parsing ounit2))
