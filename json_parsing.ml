@@ -89,24 +89,36 @@ let lexical_error msg = raise (LexicalError ("Lexical error: " ^ msg))
  * Part 1: lexer / tokenizer.
  *****************************************************************************)
 
+ (* Helper function for slicing strings *)
+let rec get_string acc str =
+  match str with
+  | [] ->
+      lexical_error "Unterminated string literal."
+  | h :: t ->
+    match h with
+    | '"' -> (acc, t)
+    | _ -> get_string (acc ^ String.make 1 h) t
 
-
-(*1. add comments*)
+(**[consume_string_literal] takes a string and returns the Stringlit [s] and the remaining input.*)
 let consume_string_literal cs =
-  (* TODO: add about 10 lines of code to this function, and replace the
-     failwith below with a helper-based implementation. *)
   match cs with
-    '"' :: _t ->
-      failwith
-        "to implement and call a helper function to consume the rest of string"
+    '"' :: t ->
+      let (s, rest) = get_string "" t in
+      (StringLit s, rest)
   | _ -> lexical_error "Expecting string literal. No opening quote."
 
 
-(*2. add comments *)
-let consume_keyword _cs =
-  (* TODO: implement, about 15 lines. *)
-  failwith "consume_keyword unimplemented"
-
+(**[consume_keyword] takes a char array and matches it with either true, false, or null.*)
+let consume_keyword cs =
+  match cs with
+  | 't' :: 'r' :: 'u' :: 'e' :: t ->
+      (TrueTok, t)
+  | 'f' :: 'a' :: 'l' :: 's' :: 'e' :: t ->
+      (FalseTok, t)
+  | 'n' :: 'u' :: 'l' :: 'l' :: t ->
+      (NullTok, t)
+  | _ ->
+      lexical_error "Expecting keyword of true, false, or null."
 
 
 (**
@@ -200,8 +212,15 @@ let consume_num cs =
   let (exp, cs) = consume_exp cs in
   (string_of_char_list (minus @ int @ decimal @ exp), cs)
 
-(**3. add comments *)
-let tokenize_char_list cs =
+
+  (*
+  | NumLit of string    (* e.g., 3.14 represented as "3.14" *)
+  | StringLit of string (* e.g., "foo" *)
+  | FalseTok            (* false *)
+  | TrueTok             (* true *)
+  | NullTok             (* null *)*)
+  
+  let tokenize_char_list cs =
   let rec go (cs, acc) =
     match cs with
       [] -> List.rev acc
@@ -210,22 +229,32 @@ let tokenize_char_list cs =
     (* TODO: add several more token cases here, including other single-
        character punctuation tokens and whitespace that should be
        skipped. *)
+    | ' ' :: cs -> go (cs, acc)
+    | '}' :: cs -> go (cs, RBrace :: acc)
+    | '[' :: cs -> go (cs, LBracket :: acc)
+    | ']' :: cs -> go (cs, RBracket :: acc)
+    | ',' :: cs -> go (cs, Comma :: acc)
+    | ':' :: cs -> go (cs, Colon :: acc)
     | c :: cs ->
         if is_digit c || c = '-' then
           let (s, cs) = consume_num (c :: cs) in
           go (cs, NumLit s :: acc)
-        else
           (* TODO: check for string literals and keywords here by calling
              the appropriate consumers. Otherwise, report a lexical
              error as below. *)
+        else if c = '"' then
+          let (tok, cs) = consume_string_literal(c :: cs) in go (cs, tok :: acc)
+        else if is_alpha c then
+          let (tok, cs) = consume_keyword (c :: cs) in
+          go (cs, tok :: acc)
+          
+        else
           lexical_error ("Unknown character " ^ char_to_string c)
   in
   go (cs, [])
 
 (**4. add comments
 *)
-let tokenize (_s : string) : token list =
-  (* TODO: implement in one line using char_list_of_string and
-     tokenize_char_list. *)
-  failwith "tokenize unimplemented"
+let tokenize (s : string) : token list =
+  tokenize_char_list (char_list_of_string s)
 
