@@ -53,6 +53,11 @@ let tests_consume_string_literal_exceptions =
       consume_string_literal
       (char_list_of_string "\'hello\'")
       (LexicalError "Lexical error: Expecting string literal. No opening quote.");
+    make_exn_test_1arg
+      "no ending quote"
+      consume_string_literal
+      (char_list_of_string "\"hello")
+      (LexicalError "Lexical error: Unterminated string literal.");
   ]
 
 
