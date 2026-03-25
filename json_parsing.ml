@@ -220,6 +220,16 @@ let consume_num cs =
   | TrueTok             (* true *)
   | NullTok             (* null *)*)
   
+  (* [tokenize_char_list cs] converts a char list into a list of JSON tokens.
+    If the input is empty, it returns an empty list.
+    Otherwise, it skips leading whitespace. If the next character begins a valid
+    token, it consumes that token.
+    Then it continues tokenizing the remaining input.
+    Finally, it returns the list of tokens in order.
+    [tokenize_char_list cs] raises [LexicalError] if the next character that
+    isn't whitespace doesn't start a valid JSON token.
+  *)
+
   let tokenize_char_list cs =
   let rec go (cs, acc) =
     match cs with
@@ -253,7 +263,11 @@ let consume_num cs =
   in
   go (cs, [])
 
-(**4. add comments
+(**4. [tokenize (s : string) : token list] converts an input string into a list
+  of tokens.
+  It repeatedly skips whitespace and then consumes the next token until
+  the input is exhausted.
+  It raises [LexicalError] if it finds invalid input.
 *)
 let tokenize (s : string) : token list =
   tokenize_char_list (char_list_of_string s)
