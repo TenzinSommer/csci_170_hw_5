@@ -24,6 +24,16 @@ let tests_consume_string_literal = "test suite for consume_string_literal" >::: 
     (char_list_of_string "\"hello\"")
     (StringLit "hello", []);
   make_test_1arg
+    "consume_string_literal: hello   "
+    consume_string_literal
+    (char_list_of_string "\"hello\"   ")
+    (StringLit "hello", [' '; ' '; ' ']);
+  make_test_1arg
+    "consume_string_literal: hello   "
+    consume_string_literal
+    (char_list_of_string "\"hello   \"")
+    (StringLit "hello   ", []);
+  make_test_1arg
     "consume_string_literal: hello! "
     consume_string_literal
     (char_list_of_string "\"hello\"! ")
@@ -33,11 +43,6 @@ let tests_consume_string_literal = "test suite for consume_string_literal" >::: 
     consume_string_literal
     (char_list_of_string "\"12345\"")
     (StringLit "12345", []);
-  (* make_test_1arg
-    "consume_string_literal: hello! world!"
-    consume_string_literal
-    (char_list_of_string "hello! world!")
-    (StringLit ["hello"; '!'; ' '; "world"; '!']); *)
 ] (* add more tests *)
 
 
@@ -49,7 +54,7 @@ let tests_consume_string_literal_exceptions =
       (char_list_of_string "hello")
       (LexicalError "Lexical error: Expecting string literal. No opening quote.");
     make_exn_test_1arg
-      "extra internal quotes"
+      "single quote instead of double quote"
       consume_string_literal
       (char_list_of_string "\'hello\'")
       (LexicalError "Lexical error: Expecting string literal. No opening quote.");
@@ -58,6 +63,11 @@ let tests_consume_string_literal_exceptions =
       consume_string_literal
       (char_list_of_string "\"hello")
       (LexicalError "Lexical error: Unterminated string literal.");
+    make_exn_test_1arg
+      "character outside of quotes"
+      consume_string_literal
+      (char_list_of_string "!\"hello\"")
+      (LexicalError "Lexical error: Expecting string literal. No opening quote.");
   ]
 
 
@@ -81,11 +91,20 @@ let tests_consume_keyword = "test suite for consume_keyword" >::: [
 ] (* add more tests *)
 
 let tests_consume_keyword_exceptions = "test suite for consume_keyword exceptions" >::: [
-
+  make_exn_test_1arg
+    "extra char in front of keyword"
+    consume_keyword
+    (char_list_of_string "ftrue")
+    (LexicalError "Lexical error: Expecting keyword of true, false, or null.");
 ]
 
 (* 4 *)
 let tests_tokenize = "test suite for tokenize" >::: [
+  make_test_1arg
+    "tokenize: empty object"
+    tokenize
+    ""
+    [];
   make_test_1arg
     "tokenize: simple object"
     tokenize
@@ -107,11 +126,34 @@ let tests_tokenize = "test suite for tokenize" >::: [
       StringLit "my_object"; Colon; LBrace;
         StringLit "item"; Colon; StringLit "my_item";
       RBrace;
-    RBrace]
+    RBrace];
+  make_test_1arg
+    "tokenize: nested lists"
+    tokenize
+    "{
+      \"primary_colors\" :
+        [\"blue\" : [\"indigo\", \"purple\"]],
+        [\"yellow\" : [\"chartreuse\", \"lime\"]],
+        [\"red\" : [\"pink\", \"orange\"]]
+    }"
+    [LBrace; StringLit "primary_colors"; Colon;
+      LBracket; StringLit "blue"; Colon; LBracket; StringLit "indigo"; Comma; StringLit "purple"; RBracket; RBracket; Comma;
+      LBracket; StringLit "yellow"; Colon; LBracket; StringLit "chartreuse"; Comma; StringLit "lime"; RBracket; RBracket; Comma;
+      LBracket; StringLit "red"; Colon; LBracket; StringLit "pink"; Comma; StringLit "orange"; RBracket; RBracket;
+    RBrace];
+  make_test_1arg
+    "tokenize: malformed JSON object"
+    tokenize
+    "{\"bad formatting\" : :}"
+    [LBrace; StringLit "bad formatting"; Colon; Colon; RBrace];
 ] (* add more tests *)
 
 let tests_tokenize_exceptions = "test suite for tokenize exceptions" >::: [
-
+  make_exn_test_1arg
+    "wrong kind of characters"
+    tokenize
+    "@@@"
+    (LexicalError "Lexical error: Unknown character @");
 ]
 
 let all_tests = "all tests" >::: [

@@ -8,13 +8,16 @@
 
 * string with no trailing whitespace
     * done
-* string with trailing whitespace
+* string with trailing whitespace outside
+    * done
+* string with trailing whitespace inside
+    * done
 * string with chars before it
+    * done
 * string with chars after it
     * done
 * treat number as string
     * done
-* string with special characters separating 2 parts
 * no opening quote
     * done
 * extra internal quotes
@@ -29,6 +32,7 @@
 * keyword with extra chars behind it
     * done
 * keyword with extra chars ahead of it
+    * done
 * more than one keyword in string
     * done
 
@@ -38,7 +42,13 @@
     * done
 * Object inside object
     * done
-* Object inside list inside object
+* list inside object
+    * done
 * Empty JSON object
+    * done
 * List inside list
+    * done
 * Malformed JSON object
+    * done
+* Unknown chars
+    * done
