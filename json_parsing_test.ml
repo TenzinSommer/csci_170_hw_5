@@ -103,7 +103,7 @@ let tests_tokenize = "test suite for tokenize" >::: [
     }"
     [LBrace; 
       StringLit "abc"; Colon; NumLit "123"; Comma;
-      StringLit "my_list"; Colon; LBracket; StringLit "m"; StringLit "y"; RBracket; Comma;
+      StringLit "my_list"; Colon; LBracket; StringLit "m"; Comma; StringLit "y"; RBracket; Comma;
       StringLit "my_object"; Colon; LBrace;
         StringLit "item"; Colon; StringLit "my_item";
       RBrace;

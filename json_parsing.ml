@@ -256,8 +256,8 @@ let consume_num cs =
           let (tok, cs) = consume_string_literal(c :: cs) in go (cs, tok :: acc)
         else if is_alpha c then
           let (tok, cs) = consume_keyword (c :: cs) in
-          go (cs, tok :: acc)
-          
+          go (cs, tok :: acc);
+
         else
           lexical_error ("Unknown character " ^ char_to_string c)
   in
